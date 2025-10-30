@@ -20,11 +20,13 @@
             min-height: 100vh;
         }
         .main-logo {
-            display: block;
-            width: 150px;
-            height: auto;
-            margin-bottom: 20px;
-        }
+    display: block;
+    width: 100%;     /* <-- DIUBAH */
+    max-width: 450px; /* <-- DITAMBAHKAN (agar sama dengan container) */
+    height: auto;
+    margin-bottom: 20px;
+    box-sizing: border-box; /* <-- DITAMBAHKAN (untuk konsistensi) */
+}
         .container {
             background: #fff;
             padding: 30px;
