@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Pengiriman Data MailJS</title>
+    
+    <script type="text/javascript" src="https://cdn.emailjs.com/dist/email.min.js"></script>
+    
+    <script type="text/javascript">
+        // Ganti dengan User ID MailJS Anda (ditemukan di Account -> API Keys)
+        (function() {
+            emailjs.init("YOUR_USER_ID"); 
+        })();
+    </script>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 450px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #5cb85c;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #4cae4c;
+        }
+
+        #response-message {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .success {
+            background-color: #dff0d8;
+            color: #3c763d;
+        }
+
+        .error {
+            background-color: #f2dede;
+            color: #a94442;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Kirim Data Anda</h1>
+        <form id="contact-form">
+            <label for="user_name">Nama Lengkap</label>
+            <input type="text" id="user_name" name="user_name" required>
+
+            <label for="user_email">Alamat Email / Kontak</label>
+            <input type="email" id="user_email" name="user_email" required>
+            
+            <label for="subject">Subjek</label>
+            <input type="text" id="subject" name="subject" required>
+
+            <label for="message">Pesan / Rincian Data</label>
+            <textarea id="message" name="message" rows="5" required></textarea>
+
+            <button type="submit" id="submit-btn">Kirim Data</button>
+            <p id="response-message" class="hidden"></p>
+        </form>
+    </div>
+    
+    <script>
+        document.getElementById('contact-form').addEventListener('submit', function(event) {
+            event.preventDefault(); // Mencegah form dikirim secara default
+
+            const btn = document.getElementById('submit-btn');
+            const responseMsg = document.getElementById('response-message');
+            
+            btn.textContent = 'Mengirim...';
+            btn.disabled = true;
+            responseMsg.classList.add('hidden'); // Sembunyikan pesan sebelumnya
+
+            // Ganti dengan Service ID dan Template ID MailJS Anda
+            const serviceID = 'YOUR_SERVICE_ID'; 
+            const templateID = 'YOUR_TEMPLATE_ID';
+
+            emailjs.sendForm(serviceID, templateID, this)
+                .then(() => {
+                    btn.textContent = 'Kirim Data';
+                    btn.disabled = false;
+                    
+                    // Tampilkan pesan sukses
+                    responseMsg.textContent = 'Data berhasil terkirim!';
+                    responseMsg.classList.remove('hidden');
+                    responseMsg.classList.remove('error');
+                    responseMsg.classList.add('success');
+                    
+                    // Reset formulir setelah sukses
+                    document.getElementById('contact-form').reset();
+                    
+                }, (err) => {
+                    btn.textContent = 'Kirim Data';
+                    btn.disabled = false;
+                    
+                    // Tampilkan pesan error
+                    responseMsg.textContent = `Gagal mengirim data: ${JSON.stringify(err)}`;
+                    responseMsg.classList.remove('hidden');
+                    responseMsg.classList.remove('success');
+                    responseMsg.classList.add('error');
+                });
+        });
+    </script>
+</body>
+</html>
